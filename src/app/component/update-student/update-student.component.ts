@@ -10,47 +10,77 @@ import { DataService } from 'src/app/utils/data.service';
   styleUrls: ['./update-student.component.css']
 })
 export class UpdateStudentComponent implements OnInit {
-  studentId: string;
-  studentDetails: Student; // Assurez-vous d'avoir un modèle Student approprié
-  studentForm: FormGroup;
-    @Input() student: Student;
+studentId: string | null; // Gardez à l'esprit que cela pourrait être null
 
+  // Modifiez ceci pour correspondre à votre modèle d'étudiant
+  student: { id: string, firstName: string, lastName: string } = { id: '', firstName: '', lastName: '' };
+
+  studentList: Student[] = [];
+  p: number = 1;
           
-  constructor(private route: ActivatedRoute) {
-  const id = this.route.snapshot.paramMap.get('id');
-  if (id !== null) {
-    this.studentId = id;
-    // Vous pouvez maintenant utiliser this.studentId en toute sécurité.
-  } else {
-    // Gérez le cas où id est null, par exemple en redirigeant l'utilisateur ou en affichant un message d'erreur.
-  }
+  constructor(private route: ActivatedRoute,private studentService: DataService,private router: Router) {
+  
 }
 
   ngOnInit() {
-    this.student = { id: '',firstName: '', lastName: '' }; // Initialisez student avec des valeurs par défaut
+ 
+    this.studentId = this.route.snapshot.paramMap.get('id');
 
-  const id = this.route.snapshot.paramMap.get('id');
-  if (id !== null) {
-    this.studentId = id;
-    // Maintenant, vous pouvez utiliser this.studentId en toute sécurité.
-  } else {
-    // Gérez le cas où id est null (par exemple, redirigez l'utilisateur ou affichez un message d'erreur)
+    if (this.studentId === null) {
+      // Gérer le cas où 'id' est null, par exemple, rediriger vers une page d'erreur.
+    } else {
+      // Vous avez une valeur valide pour 'id', vous pouvez récupérer les détails de l'étudiant ici.
+      this.getStudentDetails();
+    }
+
+    this.getAllStudents();
+   
   }
-}
 
+   getAllStudents() {
+    this.studentService.getStudents().subscribe((data) => {
+      this.studentList = data.map((item : any) => {
+        const student = item.payload.doc.data() as Student;
+        console.log(item.payload.doc);
+      student.id = item.payload.doc.id; // Ajoutez l'ID du document
+      return student;
+    });
+    }, (err) => {
+      console.log('Error while fetching student data');
+    });
+  }
+  
+    getStudentDetails() {
+    if (this.studentId) {
+      this.studentService.getStudentById(this.studentId).subscribe((student: any) => {
+        // Assurez-vous que les propriétés correspondent au type attendu
+        this.student.id = student.id;
+        this.student.firstName = student.firstName;
+        this.student.lastName = student.lastName;
+      });
+    }
+  }
 
       
   
 
-  
-updateStudent() {
-     if (this.studentForm.valid) {
-      const updatedStudent: Student = this.studentForm.value;
-      // Utilisez ce code pour mettre à jour l'étudiant avec les valeurs de updatedStudent
-      // Assurez-vous d'avoir une méthode de mise à jour dans votre service
-    }
-  
+ updateStudent() {
+  if (this.studentId) {
+    this.studentService.updateStudent(this.studentId, this.student).then(() => {
+      console.log('Student updated successfully');
+      // Redirigez l'utilisateur vers la page appropriée après la mise à jour.
+      this.router.navigate(['/dashboard'])
+    }).catch(error => {
+      console.error('Error updating student', error);
+    });
   }
+}
+
+
+
+
+
+
   
 
 }

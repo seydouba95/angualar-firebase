@@ -52,8 +52,8 @@ deleteStudent(student: Student) {
 
 
   //update student
-  updateStudent(id:string, data: any): Promise<void> {
-    return this.fs.collection('students').doc(id).update(data);
+  updateStudent(id: string, updatedStudent: Student) {
+    return this.fs.collection('students').doc(id).update(updatedStudent);
   }
 
  
@@ -61,7 +61,11 @@ deleteStudent(student: Student) {
   getStudentDetails(studentId: string): Observable<any> {
     return this.fs.doc<Student>(`students/${studentId}`).valueChanges();
   }
-
+ 
+  //get student by id
+   getStudentById(id: string) {
+    return this.fs.collection('students').doc(id).valueChanges();
+  }
 
 
 
