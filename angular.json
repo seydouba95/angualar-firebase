@@ -106,5 +106,8 @@
       }
     }
   },
-  "defaultProject": "studentAngularFirebase"
+  "defaultProject": "studentAngularFirebase",
+  "cli": {
+    "analytics": "50c264ea-fc8b-49ae-9a6a-a0f09b5c8665"
+  }
 }
